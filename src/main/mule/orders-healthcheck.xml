@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="orders-healthcheck-subflow" doc:id="49469786-4a87-4b5a-9360-7b46037c1f05" >
+		<logger level="INFO" doc:name="healthCheckSubflowStartLogger" doc:id="578bc37f-f49a-4370-a7cc-b2a851238080" message="healthCheckSubflowStarted"/>
+		<http:request method="GET" doc:name="healthCheckRequest" doc:id="8705eb78-c5a8-4cd7-9019-815bec9bf4e7" config-ref="HTTP_Request_configuration" path="/healthcheck"/>
+		<ee:transform doc:name="healthCheckResponse" doc:id="20640a87-2ccc-4cb3-a05e-10c932d34eb6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+                "message": "OK",
+                "appName": "orders-exp-api is reachable",
+                "failed": false,
+                "systems": [
+                  {
+                    "appName": "orders-prc-api",
+                    "failed": false,
+                    "status": "orders-prc-api is reachable"
+                  },
+                   {
+                    "appName": "orders-sys-api",
+                    "failed": false,
+                    "status": "orders-sys-api is reachable"
+                  },
+                   {
+                    "system": "salesforce",
+                    "status": "salesforce is reachable",
+                    "code": 200
+                  }
+                ],
+                "status": "200" 
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="healthCheckSubflowEndLogger" doc:id="8614e25e-1a4c-48b7-a1ae-0650628bf5d5" message="healthCheckSubflowEnded"/>
+	</sub-flow>
+</mule>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="orders-ping-subflow" doc:id="b5454b96-b380-47cf-be72-6d8268ca09b3" >
+		<logger level="INFO" doc:name="ordersPingSubflowStartLogger" doc:id="5ae5a755-6203-4b71-8ee7-585305cc7f08" message="ordersPingSubflowStarted"/>
+		<ee:transform doc:name="pingResponse" doc:id="54402705-7c7e-46a8-894f-3fdd9ff5f1ec" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "apiName": "orders-exp-api",
+  "status": "Running",
+  "apiVersion": "1.0.0",
+  "correlationId": "akjsdfhksdfb"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="ordersPingSubflowEndLogger" doc:id="a02e361d-4520-4b9d-b932-dd437ac0a190" message="ordersPingSubflowEnded"/>
+	</sub-flow>
+</mule>

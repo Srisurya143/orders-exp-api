@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    
+    <flow name="orders-exp-api-main">
+        <http:listener path="/api/*" config-ref="HTTP_Listener_config">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <ee:transform doc:name="initVariables" doc:id="6a526458-f9c6-4a5c-bb09-411d7f20d623" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="loggingVars" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"apiName": Mule::p('app.Name'),
+	"apiVersion": Mule::p('app.Version'),
+	"correlationId": attributes.headers.correlationId default correlationId,
+	"flowName": Mule::p('api.Mainflow')
+	
+}]]></ee:set-variable>
+				<ee:set-variable variableName="apiKickOffTime" ><![CDATA[%dw 2.0
+import * from dw::util::Timer
+output application/json
+---
+currentMilliseconds()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<apikit:router config-ref="orders-exp-api-config"/>
+		<ee:transform doc:name="processEnd" doc:id="2d1f3412-3f35-4573-bd55-2cd75c2a2bf0" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="processTime" ><![CDATA[%dw 2.0
+import * from dw::util::Timer
+output application/java
+---
+currentMilliseconds() - vars.apiKickOffTime]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+
+    </flow>
+    <flow name="orders-exp-api-console">
+        <http:listener path="/console/*" config-ref="HTTP_Listener_config">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="orders-exp-api-config"/>
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\healthCheck:orders-exp-api-config">
+		<flow-ref doc:name="orders-healthcheck-subflow" doc:id="c30c46ac-2fe2-47e5-b065-c63c7860d96f" name="orders-healthcheck-subflow"/>
+    </flow>
+    <flow name="get:\ping:orders-exp-api-config">
+		<flow-ref doc:name="order-ping-subflow" doc:id="3f52e475-5014-4dd9-9ee6-46984ff30936" name="orders-ping-subflow"/>
+    </flow>
+    <flow name="post:\orders:application\json:orders-exp-api-config">
+		<flow-ref doc:name="post-orders-subflow" doc:id="5527f0f8-dee9-4eb8-9085-c7cb897959d8" name="post-orders-subflow"/>
+    </flow>
+</mule>

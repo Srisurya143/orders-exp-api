@@ -1,0 +1,23 @@
+{
+                "message": "OK",
+                "appName": "orders-exp-api is reachable",
+                "failed": false,
+                "systems": [
+                  {
+                    "appName": "orders-prc-api",
+                    "failed": false,
+                    "status": "orders-prc-api is reachable"
+                  },
+                   {
+                    "appName": "orders-sys-api",
+                    "failed": false,
+                    "status": "orders-sys-api is reachable"
+                  },
+                   {
+                    "system": "salesforce",
+                    "status": "salesforce is reachable",
+                    "code": 200
+                  }
+                ],
+                "status": "200" 
+}

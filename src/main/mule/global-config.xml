@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="187feb70-aa2a-4538-ade8-cc2082d92991" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+   	<apikit:config name="orders-exp-api-config" api="orders-exp-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f12ba332-efa9-4c21-8bab-ff9dc7f57646" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="b97c1ab8-bb73-4744-afac-b77c33eceb3d" file="properties/config-${mule.env}-properties.yaml" />
+	<global-property doc:name="Global Property" doc:id="58b2528b-86b4-4a82-b222-85a736729a8d" name="mule.env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="fec28827-d425-4035-90a8-a30bc827bd2b" file="properties/common.yaml" />
+	<configuration doc:name="Configuration" doc:id="6d47a695-502f-4191-bfd0-3b415d67dd75" defaultErrorHandler-ref="global-error-handlerError_Handler" />
+</mule>

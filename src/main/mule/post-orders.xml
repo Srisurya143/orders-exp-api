@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="post-orders-subflow" doc:id="5b051207-5beb-4381-b339-d51ea577d579" >
+		<logger level="INFO" doc:name="postOrdersSubflowStartLogger" doc:id="7596af3e-c41d-4a1d-9d82-934d834c1a78" message="postOrdersSubflowStarted"/>
+		<http:request method="POST" doc:name="Request" doc:id="21b9479a-cb27-4162-8f3e-340b4c160291" config-ref="HTTP_Request_configuration" path="/orders">
+			<reconnect />
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="0459a8a3-bd59-4bed-bead-6bf17080effc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="postOrdersSubflowEndLogger" doc:id="872c6b46-b292-4451-a3f9-d068e1b4c958" message="postOrdersSubflowEnded"/>
+	</sub-flow>
+</mule>
